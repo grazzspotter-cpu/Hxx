@@ -1,0 +1,557 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no">
+<meta name="theme-color" content="#07150f">
+<title>FLORA REALM — Ultra Botanical Quiz</title>
+<style>
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;width:100%;height:100%;overflow:hidden;background:#020b07;color:#fff;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial,sans-serif}
+button,input{font:inherit}
+button{border:0}
+#world{position:fixed;inset:0;overflow:hidden;background:linear-gradient(#7bd7ff 0%,#d8f7ff 43%,#7fca78 72%,#092617 100%);transition:filter 1.5s}
+#world.night{filter:brightness(.68) saturate(.88)}
+.skyGlow{position:absolute;inset:-20%;background:radial-gradient(circle at 76% 15%,rgba(255,247,177,.9) 0 3%,rgba(255,210,95,.25) 9%,transparent 30%);transition:opacity 1.5s}
+.night .skyGlow{opacity:.15}
+.sun{position:absolute;width:125px;height:125px;right:9%;top:7%;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff,#fff2a0 28%,#ffc84e 64%,#ff8a2a);box-shadow:0 0 35px #ffe67b,0 0 100px rgba(255,200,70,.4);transition:all 1.5s;animation:pulse 5s ease-in-out infinite}
+.night .sun{width:78px;height:78px;background:radial-gradient(circle at 35% 35%,#fff,#cce1ff 58%,#8ba9d0);box-shadow:0 0 30px #b9d6ff,0 0 90px rgba(120,180,255,.3)}
+@keyframes pulse{50%{transform:scale(1.05)}}
+.stars{position:absolute;inset:0;opacity:0;transition:1.5s}
+.night .stars{opacity:1}
+.star{position:absolute;width:2px;height:2px;border-radius:50%;background:#fff;box-shadow:0 0 8px #fff;animation:twinkle 2s infinite alternate}
+@keyframes twinkle{to{opacity:.15;transform:scale(.5)}}
+.cloud{position:absolute;width:190px;height:42px;border-radius:50px;background:rgba(255,255,255,.22);filter:blur(1px);animation:cloud 42s linear infinite}
+.cloud:before,.cloud:after{content:"";position:absolute;background:inherit;border-radius:50%}
+.cloud:before{width:78px;height:78px;left:25px;bottom:0}.cloud:after{width:100px;height:100px;right:22px;bottom:0}
+.c1{top:13%;left:-250px}.c2{top:25%;left:-450px;transform:scale(.7);animation-duration:58s;animation-delay:8s}.c3{top:20%;left:-600px;transform:scale(.45);animation-duration:70s;animation-delay:18s}
+@keyframes cloud{to{left:125vw}}
+.mountains{position:absolute;bottom:29%;left:0;width:100%;height:38%}
+.mountain{position:absolute;bottom:0;width:0;height:0;border-left:260px solid transparent;border-right:260px solid transparent;border-bottom:380px solid rgba(13,68,60,.8)}
+.m1{left:-180px}.m2{left:18%;transform:scale(1.2);border-bottom-color:rgba(20,84,67,.84)}.m3{right:-170px;transform:scale(.9);border-bottom-color:rgba(8,48,42,.9)}
+.forest{position:absolute;bottom:27%;left:0;width:100%;height:17%;display:flex;align-items:flex-end;gap:5px;overflow:hidden}
+.tree{flex:0 0 18px;height:80px;background:linear-gradient(90deg,#032017,#0b6338,#032017);clip-path:polygon(50% 0,76% 25%,62% 25%,88% 52%,72% 52%,100% 90%,0 90%,28% 52%,12% 52%,38% 25%,24% 25%)}
+.ground{position:absolute;left:0;bottom:0;width:100%;height:39%;background:radial-gradient(ellipse at 50% 0,#4cb16b,transparent 60%),linear-gradient(#155b34,#082b19 42%,#020b07)}
+.grid{position:absolute;left:0;bottom:0;width:100%;height:42%;opacity:.12;background:linear-gradient(rgba(100,255,170,.5) 1px,transparent 1px),linear-gradient(90deg,rgba(100,255,170,.5) 1px,transparent 1px);background-size:44px 44px;transform:perspective(300px) rotateX(58deg);transform-origin:bottom}
+.fog{position:absolute;left:-15%;bottom:24%;width:130%;height:150px;background:radial-gradient(ellipse,rgba(230,255,238,.18),transparent 68%);filter:blur(24px);animation:fog 13s ease-in-out infinite alternate}
+@keyframes fog{to{transform:translateX(7%)}}
+
+/* BOTANICAL DEPTH */
+.layer{position:absolute;inset:auto 0 0;height:340px;pointer-events:none}
+.back{z-index:3;opacity:.58;transform:scale(.78);transform-origin:bottom}
+.mid{z-index:6;opacity:.82;transform:scale(.9);transform-origin:bottom}
+.front{z-index:12}
+.plant{position:absolute;bottom:0;width:150px;height:290px;transform-origin:bottom;filter:drop-shadow(0 10px 9px rgba(0,0,0,.2))}
+.stem{position:absolute;bottom:0;left:50%;width:8px;height:240px;transform:translateX(-50%);border-radius:20px;background:linear-gradient(90deg,#06381f,#36dd70,#08743c);box-shadow:0 0 12px rgba(80,255,145,.2)}
+.leaf{position:absolute;width:78px;height:34px;border-radius:100% 0 100% 0;background:linear-gradient(135deg,#c0ffd0,#38db72 45%,#05733a);box-shadow:inset -7px -6px 12px rgba(0,0,0,.2),0 0 14px rgba(55,255,140,.15);transform-origin:bottom left;animation:sway 2.8s ease-in-out infinite alternate}
+.leaf:after{content:"";position:absolute;left:8%;top:48%;width:82%;height:2px;background:rgba(225,255,232,.48);transform:rotate(-12deg)}
+@keyframes sway{to{transform:rotate(5deg) translateX(3px)}}
+.p1{left:1%;transform:scale(1.1)}.p2{left:18%;transform:scale(.72)}.p3{right:19%;transform:scale(.78)}.p4{right:0;transform:scale(1.08)}
+.a{left:15px;top:72px;transform:rotate(-32deg)}.b{right:7px;top:105px;transform:scaleX(-1) rotate(34deg)}.c{left:-2px;top:145px;transform:rotate(-42deg)}.d{right:-5px;top:178px;transform:scaleX(-1) rotate(40deg)}.e{left:27px;top:207px;transform:rotate(-20deg)}.f{right:25px;top:230px;transform:scaleX(-1) rotate(25deg)}
+
+.randomPlant{position:absolute;bottom:0;transform-origin:bottom center;filter:drop-shadow(0 7px 8px rgba(0,0,0,.2))}
+.randomPlant .rs{position:absolute;bottom:0;left:50%;width:var(--stem);height:var(--h);transform:translateX(-50%) rotate(var(--lean));transform-origin:bottom;border-radius:20px;background:linear-gradient(90deg,#07371f,#42df78,#0b7540)}
+.randomPlant .rl{position:absolute;width:var(--lw);height:var(--lh);border-radius:100% 0 100% 0;background:linear-gradient(135deg,#d2ffd9,#35d76d 42%,#06753a);box-shadow:inset -5px -5px 9px rgba(0,0,0,.2);transform-origin:bottom left;animation:sway var(--speed) ease-in-out infinite alternate}
+
+.flower{position:absolute;bottom:0;width:130px;height:245px;z-index:13}
+.flower .fs{position:absolute;bottom:0;left:50%;width:6px;height:190px;background:linear-gradient(#4be97d,#086f39);border-radius:20px}
+.head{position:absolute;left:50%;top:4px;width:76px;height:76px;transform:translateX(-50%);animation:bloom 4s ease-in-out infinite}
+@keyframes bloom{50%{transform:translateX(-50%) scale(1.06)}}
+.pet{position:absolute;left:20px;top:3px;width:36px;height:52px;border-radius:70% 70% 30% 70%;transform-origin:50% 85%;background:radial-gradient(circle at 40% 30%,#fff,#ffe05c 30%,#ff7b4d 70%,#d92d58);box-shadow:0 0 17px rgba(255,150,75,.5)}
+.q1{transform:rotate(0)}.q2{transform:rotate(72deg)}.q3{transform:rotate(144deg)}.q4{transform:rotate(216deg)}.q5{transform:rotate(288deg)}
+.center{position:absolute;left:26px;top:28px;width:25px;height:25px;border-radius:50%;background:radial-gradient(circle,#fff6a4,#e79920);box-shadow:0 0 20px #ffe879}
+.fp1{left:12%}.fp2{right:12%;transform:scale(.78)}
+
+.glow{position:absolute;bottom:0;width:130px;height:230px;z-index:14}
+.gp1{left:39%}.gp2{right:39%;transform:scale(.82)}
+.glow .gs{position:absolute;bottom:0;left:50%;width:7px;height:185px;transform:translateX(-50%);border-radius:20px;background:linear-gradient(#d9ffe4,#43ed83,#08743c);box-shadow:0 0 12px #65ff9e,0 0 32px rgba(55,255,135,.55)}
+.gl{position:absolute;width:78px;height:31px;border-radius:100% 0 100% 0;background:linear-gradient(135deg,#f0fff4,#5dffa0,#0aa64e);box-shadow:0 0 16px rgba(75,255,155,.8)}
+.gl.x{left:0;top:60px;transform:rotate(-30deg)}.gl.y{right:-2px;top:95px;transform:scaleX(-1) rotate(30deg)}.gl.z{left:-3px;top:125px;transform:rotate(-38deg)}.gl.w{right:0;top:155px;transform:scaleX(-1) rotate(38deg)}
+
+.bush{position:absolute;bottom:0;width:190px;height:130px;z-index:15}
+.bu1{left:28%}.bu2{right:28%}
+.ball{position:absolute;border-radius:50%;background:radial-gradient(circle at 30% 25%,#a5ffc0,#31c969 42%,#075329);box-shadow:inset -12px -12px 20px rgba(0,0,0,.22)}
+.ball.i{width:95px;height:95px;left:0;bottom:0}.ball.j{width:125px;height:125px;left:45px;bottom:0}.ball.k{width:80px;height:80px;right:0;bottom:0}
+.rock{position:absolute;bottom:5px;width:88px;height:47px;border-radius:65% 55% 25% 30%;background:linear-gradient(145deg,#91a49a,#4b6056 55%,#182b23);box-shadow:inset 12px 6px 15px rgba(255,255,255,.08),0 10px 20px rgba(0,0,0,.3);z-index:17}
+.r1{left:7%}.r2{right:7%}
+.root{position:absolute;bottom:0;width:230px;height:90px;border-bottom:7px solid #674326;border-radius:50%;opacity:.8;z-index:4}
+.root:before,.root:after{content:"";position:absolute;bottom:0;width:130px;height:65px;border-bottom:5px solid #74492a;border-radius:50%}
+.root:before{left:-40px;transform:rotate(-17deg)}.root:after{right:-40px;transform:rotate(17deg)}
+.mush{position:absolute;bottom:13px;width:65px;height:84px;z-index:18}.mu1{left:26%}.mu2{right:26%}
+.cap{position:absolute;top:0;width:65px;height:38px;border-radius:60px 60px 15px 15px;background:radial-gradient(circle at 25% 35%,#fff 0 4%,transparent 5%),radial-gradient(circle at 68% 28%,#fff 0 4%,transparent 5%),linear-gradient(#ff6b7b,#a91e3d)}
+.body{position:absolute;top:29px;left:17px;width:32px;height:55px;border-radius:10px 10px 18px 18px;background:linear-gradient(90deg,#aabdab,#fff4df,#9eb5a3)}
+.dew{position:absolute;width:6px;height:6px;border-radius:50%;background:#e1ffff;box-shadow:0 0 7px #baffff,0 0 14px rgba(130,255,255,.7);z-index:25}
+.fireflies{position:absolute;inset:0;z-index:26;pointer-events:none}.firefly{position:absolute;width:5px;height:5px;border-radius:50%;background:#d7ff9e;box-shadow:0 0 8px #d7ff9e,0 0 23px #5dff98;animation:fly 5s ease-in-out infinite}
+@keyframes fly{0%,100%{opacity:.1;transform:translate(0,0)}50%{opacity:1;transform:translate(35px,-50px)}}
+.falling{position:absolute;inset:0;z-index:27;pointer-events:none;overflow:hidden}.fall{position:absolute;top:-30px;color:#9cffac;opacity:.75;animation:fall linear infinite}
+@keyframes fall{to{transform:translateY(115vh) translateX(150px) rotate(600deg)}}
+
+
+/* =========================================================
+   REALISTIC LOWER FOREST — SWAYING GRASS + SHRUBS + TREE
+========================================================= */
+.realNature{
+  position:absolute;
+  left:0;right:0;bottom:0;
+  height:330px;
+  z-index:35;
+  pointer-events:none;
+  overflow:hidden;
+}
+.realHorizon{
+  position:absolute;left:0;right:0;bottom:265px;height:110px;
+  background:
+    linear-gradient(to top,rgba(3,25,14,.95),transparent),
+    radial-gradient(ellipse at 20% 70%,#164f29 0 15%,transparent 38%),
+    radial-gradient(ellipse at 75% 75%,#0d4224 0 17%,transparent 40%);
+  filter:blur(1px);
+}
+.shrubField{
+  position:absolute;left:-2%;right:-2%;bottom:0;height:230px;
+}
+.shrub{
+  position:absolute;bottom:-8px;
+  width:clamp(55px,9vw,130px);
+  height:clamp(80px,15vw,190px);
+  transform-origin:bottom center;
+  animation:shrubSway var(--sway,3.2s) ease-in-out infinite alternate;
+  filter:drop-shadow(0 7px 7px rgba(0,0,0,.25));
+}
+@keyframes shrubSway{
+  from{transform:rotate(calc(var(--lean,0deg) - 2deg))}
+  to{transform:rotate(calc(var(--lean,0deg) + 3deg))}
+}
+.shrub span{
+  position:absolute;bottom:0;left:50%;
+  width:var(--w,5px);height:var(--h,110px);
+  transform-origin:bottom center;
+  transform:translateX(-50%) rotate(var(--r,0deg));
+  border-radius:100% 0 100% 0;
+  background:
+    linear-gradient(90deg,#063219,#2c8e42 48%,#0a4524);
+}
+.shrub span:after{
+  content:"";
+  position:absolute;
+  width:100%;height:100%;
+  left:0;top:0;
+  border-radius:inherit;
+  background:linear-gradient(90deg,transparent 30%,rgba(175,255,175,.16),transparent 70%);
+}
+.bladeField{
+  position:absolute;left:-3%;right:-3%;bottom:0;height:175px;
+  overflow:hidden;
+}
+.blade{
+  position:absolute;bottom:-8px;
+  width:clamp(2px,.35vw,5px);
+  height:var(--bh,70px);
+  border-radius:100% 0 100% 0;
+  transform-origin:bottom center;
+  transform:rotate(var(--br,0deg));
+  background:linear-gradient(90deg,#052d18,#2e9b45,#9bdb73);
+  opacity:var(--bo,.8);
+  animation:grassSway var(--gs,2.4s) ease-in-out infinite alternate;
+}
+@keyframes grassSway{
+  from{transform:rotate(calc(var(--br,0deg) - 3deg))}
+  to{transform:rotate(calc(var(--br,0deg) + 7deg))}
+}
+.treeSilhouette{
+  position:absolute;right:-5%;bottom:235px;width:260px;height:270px;
+  opacity:.9;
+  filter:drop-shadow(0 12px 12px rgba(0,0,0,.28));
+}
+.treeTrunk{
+  position:absolute;bottom:0;left:45%;width:34px;height:220px;
+  border-radius:50% 45% 10% 10%;
+  background:linear-gradient(90deg,#24170c,#76502a 40%,#3c2513 72%,#171009);
+  transform:rotate(4deg);
+}
+.branch{
+  position:absolute;bottom:130px;left:40%;width:145px;height:18px;
+  border-radius:100%;
+  background:#432914;
+  transform:rotate(-28deg);
+}
+.branch.b2{left:45%;bottom:165px;width:115px;transform:rotate(27deg)}
+.branch.b3{left:30%;bottom:195px;width:90px;transform:rotate(-46deg)}
+.treeCrown{
+  position:absolute;left:0;top:0;width:260px;height:180px;
+  background:
+    radial-gradient(circle at 28% 55%,#39884a 0 20%,transparent 21%),
+    radial-gradient(circle at 48% 28%,#4b9b51 0 24%,transparent 25%),
+    radial-gradient(circle at 67% 48%,#2e773f 0 25%,transparent 26%),
+    radial-gradient(circle at 82% 65%,#215f35 0 18%,transparent 19%),
+    radial-gradient(circle at 12% 78%,#276d3b 0 16%,transparent 17%);
+  filter:blur(.2px);
+}
+.fallingLeaf{
+  position:absolute;
+  top:-30px;
+  width:11px;height:7px;
+  border-radius:100% 0 100% 0;
+  background:linear-gradient(135deg,#a6d65e,#3f8f35);
+  box-shadow:0 2px 5px rgba(0,0,0,.25);
+  animation:leafFall var(--fd,7s) linear infinite;
+  animation-delay:var(--delay,0s);
+}
+@keyframes leafFall{
+  0%{transform:translate3d(0,-30px,0) rotate(0deg);opacity:0}
+  8%{opacity:.95}
+  35%{transform:translate3d(45px,30vh,0) rotate(180deg)}
+  65%{transform:translate3d(-30px,65vh,0) rotate(330deg)}
+  100%{transform:translate3d(80px,105vh,0) rotate(620deg);opacity:0}
+}
+.groundShade{
+  position:absolute;left:0;right:0;bottom:0;height:115px;
+  background:linear-gradient(to top,rgba(1,9,5,.9),transparent);
+}
+
+/* UI */
+.ui{position:relative;z-index:100;min-height:100vh;display:flex;justify-content:center;align-items:center;padding:18px}
+.panel{width:min(760px,94vw);max-height:92vh;overflow:auto;padding:30px;border-radius:30px;border:1px solid rgba(150,255,190,.2);background:linear-gradient(135deg,rgba(2,25,16,.82),rgba(2,12,8,.62));backdrop-filter:blur(20px);-webkit-backdrop-filter:blur(20px);box-shadow:0 30px 100px rgba(0,0,0,.48),inset 0 1px rgba(255,255,255,.08)}
+.screen{display:none}.screen.active{display:block}
+.brand{font-size:12px;letter-spacing:3px;color:#9cffb7;font-weight:800;margin-bottom:14px}
+h1{font-size:clamp(42px,10vw,86px);line-height:.9;letter-spacing:-5px;margin:0 0 14px;background:linear-gradient(120deg,#fff,#aaffc0,#5effa0);-webkit-background-clip:text;background-clip:text;color:transparent}
+.sub{color:#c9ddd0;line-height:1.6}
+input{width:100%;margin:22px 0 12px;padding:17px 18px;border-radius:17px;border:1px solid rgba(150,255,190,.25);outline:none;background:rgba(0,0,0,.25);color:#fff}
+.btn{width:100%;padding:16px;border-radius:17px;color:#03140b;font-weight:900;background:linear-gradient(120deg,#8dffc0,#35dc75);box-shadow:0 12px 30px rgba(40,255,125,.18);margin-top:8px}
+.btn.secondary{color:#dffff0;background:rgba(255,255,255,.08);box-shadow:none;border:1px solid rgba(255,255,255,.12)}
+.hud{position:fixed;top:14px;left:50%;transform:translateX(-50%);z-index:90;display:none;width:min(760px,92vw);justify-content:space-between;gap:8px;padding:10px 13px;border-radius:18px;background:rgba(2,15,10,.5);backdrop-filter:blur(15px);border:1px solid rgba(255,255,255,.12)}
+.hud.show{display:flex}.stat{font-size:12px;color:#bde7cc}.stat b{color:#fff;font-size:15px}
+.progress{position:fixed;top:0;left:0;height:4px;background:#70ff9c;z-index:200;width:0;box-shadow:0 0 12px #70ff9c}
+.qnum{font-size:12px;color:#91ffb4;letter-spacing:2px;font-weight:800}
+.question{font-size:clamp(22px,5vw,36px);line-height:1.2;margin:14px 0 22px}
+.answers{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.answer{padding:17px;border-radius:17px;text-align:left;color:#fff;background:rgba(255,255,255,.075);border:1px solid rgba(255,255,255,.1);transition:.2s}
+.answer:active{transform:scale(.98)}.answer.correct{background:rgba(54,220,117,.28);border-color:#5dff9a}.answer.wrong{background:rgba(255,70,90,.25);border-color:#ff7480}
+.scoreBig{font-size:64px;font-weight:1000;color:#91ffb3}
+.leader{margin-top:20px;border-top:1px solid rgba(255,255,255,.1);padding-top:15px}
+.row{display:flex;justify-content:space-between;padding:9px 0;border-bottom:1px solid rgba(255,255,255,.06)}
+.controls{position:fixed;right:14px;bottom:14px;z-index:120;display:flex;gap:8px}
+.small{width:44px;height:44px;border-radius:50%;background:rgba(2,18,11,.65);border:1px solid rgba(255,255,255,.15);color:#fff}
+.badge{display:inline-block;margin-top:12px;padding:7px 10px;border-radius:99px;background:rgba(103,255,156,.1);border:1px solid rgba(103,255,156,.2);font-size:11px;color:#9cffba}
+#toast{position:fixed;left:50%;bottom:75px;transform:translateX(-50%) translateY(20px);z-index:300;padding:10px 15px;border-radius:99px;background:rgba(2,15,10,.85);border:1px solid rgba(255,255,255,.15);opacity:0;transition:.25s;pointer-events:none;font-size:12px}
+#toast.on{opacity:1;transform:translateX(-50%) translateY(0)}
+.confetti{position:fixed;z-index:250;width:8px;height:12px;top:-20px;animation:conf 2.8s linear forwards}
+@keyframes conf{to{transform:translateY(110vh) rotate(720deg);opacity:0}}
+@media(max-width:600px){
+ .panel{padding:22px;border-radius:25px}.answers{grid-template-columns:1fr}.plant{transform:scale(.75)!important;transform-origin:bottom}.p1{left:-25px}.p4{right:-35px}.p2,.p3{display:none}.flower{transform:scale(.7)}.fp1{left:3%}.fp2{right:3%}.glow{transform:scale(.7)}.gp1{left:31%}.gp2{right:31%}.bush{transform:scale(.72)}.bu1{left:10%}.bu2{right:10%}.question{font-size:25px}
+}
+.performance .firefly,.performance .fall,.performance .fog{display:none}
+.performance .plant,.performance .randomPlant{animation:none}
+</style>
+</head>
+<body>
+
+<div id="world">
+  <div class="skyGlow"></div><div class="sun"></div><div class="stars" id="stars"></div>
+  <div class="cloud c1"></div><div class="cloud c2"></div><div class="cloud c3"></div>
+  <div class="mountains"><div class="mountain m1"></div><div class="mountain m2"></div><div class="mountain m3"></div></div>
+  <div class="forest" id="forest"></div>
+  <div class="ground"></div><div class="grid"></div><div class="fog"></div>
+
+  <div class="layer back" id="back"></div>
+  <div class="layer mid" id="mid"></div>
+  <div class="layer front">
+    <div class="root" style="left:5%"></div><div class="root" style="right:5%;transform:scale(.8)"></div>
+    <div class="plant p1"><div class="stem"></div><i class="leaf a"></i><i class="leaf b"></i><i class="leaf c"></i><i class="leaf d"></i><i class="leaf e"></i><i class="leaf f"></i></div>
+    <div class="plant p4"><div class="stem"></div><i class="leaf a"></i><i class="leaf b"></i><i class="leaf c"></i><i class="leaf d"></i><i class="leaf e"></i><i class="leaf f"></i></div>
+    <div class="flower fp1"><div class="fs"></div><div class="head"><i class="pet q1"></i><i class="pet q2"></i><i class="pet q3"></i><i class="pet q4"></i><i class="pet q5"></i><div class="center"></div></div></div>
+    <div class="flower fp2"><div class="fs"></div><div class="head"><i class="pet q1"></i><i class="pet q2"></i><i class="pet q3"></i><i class="pet q4"></i><i class="pet q5"></i><div class="center"></div></div></div>
+    <div class="glow gp1"><div class="gs"></div><i class="gl x"></i><i class="gl y"></i><i class="gl z"></i><i class="gl w"></i></div>
+    <div class="glow gp2"><div class="gs"></div><i class="gl x"></i><i class="gl y"></i><i class="gl z"></i><i class="gl w"></i></div>
+    <div class="bush bu1"><i class="ball i"></i><i class="ball j"></i><i class="ball k"></i></div>
+    <div class="bush bu2"><i class="ball i"></i><i class="ball j"></i><i class="ball k"></i></div>
+    <div class="mush mu1"><div class="cap"></div><div class="body"></div></div>
+    <div class="mush mu2"><div class="cap"></div><div class="body"></div></div>
+    <div class="rock r1"></div><div class="rock r2"></div>
+    <div id="randomFront"></div>
+  </div>
+  <div class="fireflies" id="fireflies"></div><div class="falling" id="falling"></div>
+</div>
+
+
+<div class="realNature" id="realNature">
+  <div class="realHorizon"></div>
+  <div class="treeSilhouette">
+    <div class="treeCrown"></div>
+    <div class="treeTrunk"></div>
+    <div class="branch"></div>
+    <div class="branch b2"></div>
+    <div class="branch b3"></div>
+  </div>
+  <div class="shrubField" id="shrubField"></div>
+  <div class="bladeField" id="bladeField"></div>
+  <div class="groundShade"></div>
+  <div id="fallingLeaves"></div>
+</div>
+
+<div class="progress" id="progress"></div>
+<div class="hud" id="hud">
+  <div class="stat">SOAL <b id="qCount">1/10</b></div>
+  <div class="stat">SKOR <b id="score">0</b></div>
+  <div class="stat">COMBO <b id="combo">0</b></div>
+</div>
+
+<div class="ui">
+  <section class="panel screen active" id="home">
+    <div class="brand">✦ FLORA REALM / ULTRA BOTANICAL WORLD</div>
+    <h1>LIVING<br>GARDEN</h1>
+    <p class="sub">Dunia tanaman procedural dengan beberapa layer kedalaman, angin, bunga, embun, kabut, bioluminesensi, firefly dan pencahayaan dinamis. Pertanyaannya dibuat mudah agar anak bisa bermain dan menjawab bersama orang tua.</p>
+    <span class="badge">GRAPHICS: ULTRA • MOBILE OPTIMIZED</span>
+    <input id="name" maxlength="18" placeholder="Masukkan nama pemain">
+    <button class="btn" onclick="startGame()">MASUK KE DUNIA TANAMAN</button>
+    <button class="btn secondary" onclick="showBoard()">LIHAT LEADERBOARD</button>
+  </section>
+
+  <section class="panel screen" id="quiz">
+    <div class="qnum" id="qNum">QUESTION 01</div>
+    <div class="question" id="question"></div>
+    <div class="answers" id="answers"></div>
+  </section>
+
+  <section class="panel screen" id="result">
+    <div class="brand">✦ ECOSYSTEM COMPLETE</div>
+    <h1>SELESAI</h1>
+    <div class="scoreBig" id="finalScore">0</div>
+    <p class="sub" id="resultText"></p>
+    <div class="leader" id="resultBoard"></div>
+    <button class="btn" onclick="restart()">MAIN LAGI</button>
+    <button class="btn secondary" onclick="showBoard()">LEADERBOARD</button>
+  </section>
+
+  <section class="panel screen" id="board">
+    <div class="brand">✦ GLOBAL LOCAL BOARD</div>
+    <h1>TOP 10</h1>
+    <div class="leader" id="boardList"></div>
+    <button class="btn" onclick="restart()">KEMBALI</button>
+  </section>
+</div>
+
+<div class="controls">
+  <button class="small" onclick="toggleNight()" title="Siang/Malam">☼</button>
+  <button class="small" onclick="togglePerformance()" title="Performance">⚡</button>
+  <button class="small" onclick="regenerate()" title="Random Garden">↻</button>
+</div>
+<div id="toast"></div>
+
+<script>
+const questions=[
+ {q:"Apa warna daun yang paling sering kita lihat?",a:["Hijau","Biru","Ungu","Hitam"],c:0},
+ {q:"Bagian tanaman yang berada di dalam tanah biasanya adalah...",a:["Akar","Bunga","Daun","Buah"],c:0},
+ {q:"Apa yang dibutuhkan tanaman untuk tumbuh?",a:["Air","Batu saja","Mainan","Kertas"],c:0},
+ {q:"Bunga biasanya tumbuh di bagian...",a:["Tanaman","Batu","Awan","Sepatu"],c:0},
+ {q:"Pohon mangga menghasilkan...",a:["Mangga","Apel","Jeruk","Semangka"],c:0},
+ {q:"Wortel biasanya tumbuh di...",a:["Dalam tanah","Atas pohon","Di awan","Di laut"],c:0},
+ {q:"Apa yang kita gunakan untuk menyiram tanaman?",a:["Air","Pasir","Buku","Pensil"],c:0},
+ {q:"Tanaman membutuhkan sinar dari...",a:["Matahari","Bulan saja","Lampu lalu lintas","Televisi"],c:0},
+ {q:"Daun biasanya tumbuh pada...",a:["Batang","Batu","Awan","Tanah saja"],c:0},
+ {q:"Pisang tumbuh pada...",a:["Pohon pisang","Pohon kelapa","Rumput","Batu"],c:0},
+ {q:"Tomat termasuk bagian dari...",a:["Tanaman","Hewan","Batu","Mainan"],c:0},
+ {q:"Apa warna wortel yang paling umum?",a:["Oranye","Biru","Hitam","Ungu"],c:0},
+ {q:"Kelapa tumbuh pada...",a:["Pohon kelapa","Rumput","Bunga mawar","Padi"],c:0},
+ {q:"Padi menghasilkan...",a:["Beras","Susu","Telur","Madu"],c:0},
+ {q:"Kaktus biasanya cocok hidup di tempat yang...",a:["Kering","Penuh salju","Di bawah laut","Selalu gelap"],c:0},
+ {q:"Tanaman membutuhkan air agar tidak...",a:["Kekeringan","Berjalan","Berbicara","Terbang"],c:0},
+ {q:"Akar membantu tanaman berdiri dengan...",a:["Kuat di tanah","Terbang","Berenang","Melompat"],c:0},
+ {q:"Apa warna bunga matahari yang umum?",a:["Kuning","Hitam","Biru","Abu-abu"],c:0},
+ {q:"Buah apel biasanya berbentuk...",a:["Bulat","Kotak","Segitiga","Panjang seperti tali"],c:0},
+ {q:"Bagian tanaman yang sering kita makan pada bayam adalah...",a:["Daun","Akar saja","Bunga saja","Batang pohon"],c:0},
+ {q:"Tanaman yang sangat tinggi dan memiliki batang besar disebut...",a:["Pohon","Batu","Rumput","Jamur"],c:0},
+ {q:"Rumput biasanya berwarna...",a:["Hijau","Pink","Biru","Putih"],c:0},
+ {q:"Mawar adalah jenis...",a:["Bunga","Buah","Sayur","Pohon besar"],c:0},
+ {q:"Semangka biasanya memiliki banyak...",a:["Air","Batu","Daun kering","Pasir"],c:0},
+ {q:"Jeruk biasanya memiliki rasa...",a:["Segar dan asam/manis","Asin sekali","Pahit seperti kopi","Pedas"],c:0},
+ {q:"Bagian tanaman yang melindungi biji pada beberapa buah adalah...",a:["Buah","Akar","Awan","Tanah"],c:0},
+ {q:"Biji bisa ditanam di...",a:["Tanah","Kaca saja","Televisi","Sepatu"],c:0},
+ {q:"Jika tanaman layu, salah satu hal yang perlu diperiksa adalah...",a:["Airnya","Warnanya di televisi","Suara radio","Baterai"],c:0},
+ {q:"Pohon memberikan tempat hidup bagi banyak...",a:["Hewan","Mobil","Buku","Sepeda"],c:0},
+ {q:"Lebah sering datang ke bunga untuk mencari...",a:["Nektar","Batu","Pasir","Air laut"],c:0},
+ {q:"Apa yang bisa kita lakukan agar tanaman tetap sehat?",a:["Merawat dan menyiramnya","Mencabutnya setiap hari","Menutupnya terus","Membuangnya"],c:0},
+ {q:"Tanaman dapat membantu membuat udara terasa lebih...",a:["Segar","Berisik","Berat","Gelap"],c:0},
+ {q:"Mangga termasuk...",a:["Buah","Batu","Bunga","Akar"],c:0},
+ {q:"Bayam termasuk...",a:["Sayuran","Buah tropis","Batu","Jamur"],c:0},
+ {q:"Jagung memiliki biji yang berada pada...",a:["Tongkol","Akar","Bunga mawar","Batang pohon"],c:0},
+ {q:"Pohon kelapa dapat menghasilkan...",a:["Kelapa","Wortel","Kentang","Anggur"],c:0},
+ {q:"Kentang biasanya tumbuh di...",a:["Dalam tanah","Atas awan","Batang tinggi","Air laut"],c:0},
+ {q:"Bunga yang terkenal mengikuti arah matahari adalah...",a:["Bunga matahari","Mawar","Melati","Anggrek"],c:0},
+ {q:"Tanaman hijau menggunakan cahaya matahari untuk membuat...",a:["Makanan","Sepatu","Batu","Mainan"],c:0},
+ {q:"Apa yang harus dilakukan sebelum menanam biji?",a:["Menyiapkan tanah","Membuang bijinya","Membekukannya","Mengecatnya"],c:0},
+ {q:"Pohon mangga biasanya memiliki...",a:["Daun dan batang","Sirip ikan","Roda","Sayap"],c:0},
+ {q:"Tanaman kecil yang tumbuh di halaman bisa disebut...",a:["Rumput","Ikan","Burung","Awan"],c:0},
+ {q:"Anggrek adalah salah satu jenis...",a:["Bunga","Ikan","Buah","Batu"],c:0},
+ {q:"Melati terkenal memiliki bunga yang...",a:["Harum","Beroda","Berbunyi","Berduri semua"],c:0},
+ {q:"Apa yang terjadi jika tanaman mendapat cukup air dan cahaya?",a:["Dapat tumbuh","Menjadi batu","Terbang","Bersuara"],c:0},
+ {q:"Daun membantu tanaman membuat makanan dengan bantuan...",a:["Cahaya matahari","Pasir saja","Batu","Mainan"],c:0},
+ {q:"Pohon dapat membuat lingkungan menjadi lebih...",a:["Teduh","Berisik","Keras","Licin"],c:0},
+ {q:"Saat menanam tanaman, kita sebaiknya...",a:["Merawatnya","Menginjaknya","Mencabutnya","Membuangnya"],c:0},
+ {q:"Buah yang kulitnya biasanya berwarna kuning saat matang adalah...",a:["Pisang","Semangka","Terong","Bayam"],c:0},
+ {q:"Sayuran yang sering berwarna hijau adalah...",a:["Kangkung","Apel","Mangga","Semangka"],c:0}
+];
+
+let quiz=[],index=0,score=0,combo=0,player="",answered=false;
+const $=id=>document.getElementById(id);
+
+
+function makeRealNature(){
+  const shrubs=$("shrubField"), blades=$("bladeField"), leaves=$("fallingLeaves");
+  shrubs.innerHTML=""; blades.innerHTML=""; leaves.innerHTML="";
+  const mobile=innerWidth<600;
+
+  // Dense random bushes with different heights, angles and wind speeds.
+  for(let i=0;i<(mobile?22:38);i++){
+    const s=document.createElement("div");
+    s.className="shrub";
+    s.style.left=(-2+Math.random()*104)+"%";
+    s.style.setProperty("--sway",(2.2+Math.random()*2.8)+"s");
+    s.style.setProperty("--lean",(-8+Math.random()*16)+"deg");
+    for(let j=0;j<5+Math.floor(Math.random()*5);j++){
+      const leaf=document.createElement("span");
+      leaf.style.setProperty("--w",(3+Math.random()*5)+"px");
+      leaf.style.setProperty("--h",(55+Math.random()*125)+"px");
+      leaf.style.setProperty("--r",(-38+Math.random()*76)+"deg");
+      leaf.style.left=(25+Math.random()*50)+"%";
+      leaf.style.bottom=(Math.random()*25)+"px";
+      s.appendChild(leaf);
+    }
+    shrubs.appendChild(s);
+  }
+
+  // Hundreds of grass blades for a natural moving foreground.
+  for(let i=0;i<(mobile?150:280);i++){
+    const b=document.createElement("i");
+    b.className="blade";
+    b.style.left=Math.random()*102+"%";
+    b.style.setProperty("--bh",(35+Math.random()*115)+"px");
+    b.style.setProperty("--br",(-28+Math.random()*56)+"deg");
+    b.style.setProperty("--gs",(1.5+Math.random()*2.8)+"s");
+    b.style.setProperty("--bo",(.48+Math.random()*.5).toFixed(2));
+    b.style.animationDelay=(-Math.random()*4)+"s";
+    blades.appendChild(b);
+  }
+
+  // Leaves falling continuously from the tree.
+  for(let i=0;i<(mobile?14:26);i++){
+    const l=document.createElement("i");
+    l.className="fallingLeaf";
+    l.style.left=(55+Math.random()*35)+"%";
+    l.style.setProperty("--fd",(5+Math.random()*7)+"s");
+    l.style.setProperty("--delay",(-Math.random()*10)+"s");
+    leaves.appendChild(l);
+  }
+}
+
+function makeStars(){
+  for(let i=0;i<90;i++){let s=document.createElement("i");s.className="star";s.style.left=Math.random()*100+"%";s.style.top=Math.random()*65+"%";s.style.animationDelay=Math.random()*3+"s";$("stars").appendChild(s)}
+}
+function makeForest(){
+  for(let i=0;i<90;i++){let t=document.createElement("i");t.className="tree";t.style.height=(45+Math.random()*75)+"px";t.style.transform=`scale(${.6+Math.random()*.7})`;$("forest").appendChild(t)}
+}
+function randomPlant(parent,count,scaleMin,scaleMax){
+  for(let i=0;i<count;i++){
+    const p=document.createElement("div");p.className="randomPlant";
+    const h=70+Math.random()*180,w=3+Math.random()*7,lean=-12+Math.random()*24;
+    p.style.left=(Math.random()*100)+"%";p.style.height=(h+70)+"px";
+    p.style.transform=`scale(${scaleMin+Math.random()*(scaleMax-scaleMin)})`;
+    p.style.zIndex=Math.floor(2+Math.random()*20);
+    p.style.opacity=.45+Math.random()*.55;
+    const stem=document.createElement("i");stem.className="rs";stem.style.setProperty("--h",h+"px");stem.style.setProperty("--stem",w+"px");stem.style.setProperty("--lean",lean+"deg");p.appendChild(stem);
+    const leaves=2+Math.floor(Math.random()*5);
+    for(let j=0;j<leaves;j++){let l=document.createElement("i");l.className="rl";l.style.left=(35+Math.random()*25)+"%";l.style.bottom=(20+j*(h/(leaves+1)))+"px";l.style.setProperty("--lw",(30+Math.random()*55)+"px");l.style.setProperty("--lh",(15+Math.random()*24)+"px");l.style.transform=Math.random()>.5?"rotate(-35deg)":"scaleX(-1) rotate(35deg)";l.style.setProperty("--speed",(2+Math.random()*3)+"s");p.appendChild(l)}
+    parent.appendChild(p)
+  }
+}
+function makeFireflies(){
+  for(let i=0;i<28;i++){let f=document.createElement("i");f.className="firefly";f.style.left=Math.random()*100+"%";f.style.top=(35+Math.random()*45)+"%";f.style.animationDelay=Math.random()*5+"s";$("fireflies").appendChild(f)}
+}
+function makeFalling(){
+  const chars=["✦","•","❋","❈"];
+  for(let i=0;i<18;i++){let f=document.createElement("i");f.className="fall";f.textContent=chars[Math.floor(Math.random()*chars.length)];f.style.left=Math.random()*100+"%";f.style.fontSize=(8+Math.random()*12)+"px";f.style.animationDuration=(6+Math.random()*8)+"s";f.style.animationDelay=-Math.random()*10+"s";$("falling").appendChild(f)}
+}
+function makeDew(){
+  document.querySelectorAll(".leaf,.gl").forEach((el,i)=>{
+    if(i%2===0){let d=document.createElement("i");d.className="dew";d.style.left=(25+Math.random()*50)+"%";d.style.top=(20+Math.random()*50)+"%";el.appendChild(d)}
+  })
+}
+function regenerate(){
+  $("back").innerHTML="";$("mid").innerHTML="";$("randomFront").innerHTML="";
+  randomPlant($("back"),22,.45,.72);randomPlant($("mid"),16,.65,.9);randomPlant($("randomFront"),8,.7,1.05);
+  toast("Taman diacak ulang 🌿");
+}
+function toast(t){let x=$("toast");x.textContent=t;x.classList.add("on");setTimeout(()=>x.classList.remove("on"),1300)}
+function toggleNight(){ $("world").classList.toggle("night"); toast($("world").classList.contains("night")?"Mode malam ✨":"Mode siang ☀️") }
+function togglePerformance(){document.body.classList.toggle("performance");toast(document.body.classList.contains("performance")?"Performance ON":"Ultra Graphics ON")}
+function show(id){document.querySelectorAll(".screen").forEach(x=>x.classList.remove("active"));$(id).classList.add("active")}
+function startGame(){
+  player=$("name").value.trim()||"Pemain";
+  localStorage.setItem("floraPlayer",player);
+
+  // Setiap permainan mengambil 10 soal secara acak.
+  // Soal dari permainan sebelumnya disimpan sementara agar
+  // permainan berikutnya tidak langsung mengulang soal yang sama.
+  let recent=JSON.parse(localStorage.getItem("floraRecentQuestions")||"[]");
+  let available=questions.map((_,i)=>i).filter(i=>!recent.includes(i));
+
+  // Jika soal yang belum dipakai kurang dari 10, mulai siklus baru
+  // tetapi tetap pertahankan sebagian soal lama agar tidak terasa sama.
+  if(available.length<10){
+    available=questions.map((_,i)=>i).filter(i=>!recent.slice(-5).includes(i));
+  }
+
+  available.sort(()=>Math.random()-.5);
+  const selected=available.slice(0,10);
+
+  quiz=selected.map(i=>questions[i]);
+  const updatedRecent=[...recent,...selected].slice(-20);
+  localStorage.setItem("floraRecentQuestions",JSON.stringify(updatedRecent));
+
+  index=0;score=0;combo=0;answered=false;
+  $("hud").classList.add("show");show("quiz");renderQuestion()
+}
+function renderQuestion(){
+  answered=false;
+  const item=quiz[index];
+  $("qNum").textContent=`QUESTION ${String(index+1).padStart(2,"0")}`;
+  $("qCount").textContent=`${index+1}/10`;$("score").textContent=score;$("combo").textContent=combo;
+  $("question").textContent=item.q;$("progress").style.width=(index/10*100)+"%";
+  const box=$("answers");box.innerHTML="";
+  item.a.forEach((a,i)=>{let b=document.createElement("button");b.className="answer";b.textContent=a;b.onclick=()=>answer(i,b);box.appendChild(b)})
+}
+function answer(i,button){
+  if(answered)return;answered=true;
+  const item=quiz[index],buttons=[...$("answers").children];
+  buttons[item.c].classList.add("correct");
+  if(i===item.c){combo++;score+=100+combo*20;button.classList.add("correct");toast("Benar! 🌱 Combo +"+combo)}
+  else{combo=0;button.classList.add("wrong");toast("Belum tepat 🌿")}
+  $("score").textContent=score;$("combo").textContent=combo;
+  setTimeout(()=>{index++;if(index>=10)finish();else renderQuestion()},650)
+}
+function finish(){
+  $("hud").classList.remove("show");$("progress").style.width="100%";
+  const board=JSON.parse(localStorage.getItem("floraBoard")||"[]");
+  board.push({name:player,score,date:new Date().toLocaleDateString("id-ID")});
+  board.sort((a,b)=>b.score-a.score);board.splice(10);
+  localStorage.setItem("floraBoard",JSON.stringify(board));
+  $("finalScore").textContent=score;
+  $("resultText").textContent=score>=1200?"Ekosistemmu berkembang sangat baik! 🌿":score>=700?"Tamanmu sudah tumbuh dengan baik. 🌱":"Terus belajar dan rawat tanamanmu! 🍃";
+  renderBoard("resultBoard");show("result");
+  if(score>=700)confetti()
+}
+function renderBoard(id){
+  const board=JSON.parse(localStorage.getItem("floraBoard")||"[]"),box=$(id);
+  box.innerHTML=board.length?board.map((x,i)=>`<div class="row"><span>#${i+1} ${escapeHTML(x.name)}</span><b>${x.score}</b></div>`).join(""):"<p class='sub'>Belum ada skor.</p>"
+}
+function showBoard(){ $("hud").classList.remove("show");renderBoard("boardList");show("board") }
+function restart(){ $("name").value=localStorage.getItem("floraPlayer")||"";show("home") }
+function escapeHTML(s){return String(s).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"}[m]))}
+function confetti(){
+  for(let i=0;i<65;i++){let c=document.createElement("i");c.className="confetti";c.style.left=Math.random()*100+"%";c.style.background=`hsl(${Math.random()*360},90%,65%)`;c.style.animationDelay=Math.random()*.7+"s";document.body.appendChild(c);setTimeout(()=>c.remove(),3300)}
+}
+
+makeStars();makeForest();makeFireflies();makeFalling();makeRealNature();regenerate();makeDew();
+$("name").value=localStorage.getItem("floraPlayer")||"";
+</script>
+</body>
+</html>
